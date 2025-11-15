@@ -42,7 +42,7 @@ let originalFileName = "";
 let historyStack = [];
 let redoStack = [];
 let isUndoRedoInProgress = false;
-let autoSaveInterval = 300000;  // 5分ごとに自動保存（300,000ミリ秒）
+let autoSaveInterval = 60000;  // 1分ごとに自動保存（60,000ミリ秒）
 
 // 自動保存を開始
 function startAutoSave() {
@@ -193,19 +193,6 @@ document.getElementById("newBtn").onclick = async () => {
 
     const newFileName = prompt("新しいファイル名を入力してください（拡張子も含む）", "新しいファイル.txt");
 
-    if (newFileName && !/[^a-zA-Z0-9_\-\.]/.test(newFileName)) {
-        document.getElementById("editor").value = "";
-        document.getElementById("filename").value = newFileName;
-        document.getElementById("saveBtn").disabled = false;
-
-        fileHandle = null;
-        originalFileName = "";
-        historyStack = [];
-        redoStack = [];
-        updateUndoRedoButtons();
-    } else {
-        alert("無効なファイル名です。特殊文字が含まれています。");
-    }
 };
 
 // 保存（ファイル名変更有無で処理分岐）
