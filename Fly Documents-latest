@@ -6,10 +6,6 @@
 <link rel="icon" href="Doc-icon.png" type="image/x-icon">
 <style>
 textarea { width: 100%; height: 400px; }
-#editor {
-    border: 2px dashed #ccc;
-    padding: 10px;
-}
 </style>
 </head>
 <body>
@@ -39,58 +35,9 @@ textarea { width: 100%; height: 400px; }
 // 変数の初期化
 let fileHandle = null;
 let originalFileName = "";
-let historyStack = [];
-let redoStack = [];
-let isUndoRedoInProgress = false;
-let autoSaveInterval = 60000;  // 1分ごとに自動保存（60,000ミリ秒）
-
-// 自動保存を開始
-function startAutoSave() {
-    setInterval(async () => {
-        await saveFile();  // 自動保存を非同期で実行
-    }, autoSaveInterval);
-}
-
-// 自動保存処理
-async function saveFile() {
-    const filenameInput = document.getElementById("filename").value.trim();
-    if (!filenameInput) {
-        alert("ファイル名を入力してください");
-        return;
-    }
-
-    const mode = document.getElementById("mode").value;
-    let output;
-
-    if (mode === "text") {
-        output = new TextEncoder().encode(document.getElementById("editor").value);
-    } else {
-        try {
-            output = new Uint8Array(base64ToArrayBuffer(document.getElementById("editor").value));
-        } catch (e) {
-            alert("Base64が正しくありません");
-            return;
-        }
-    }
-
-    try {
-        if (filenameInput === originalFileName && fileHandle) {
-            const writable = await fileHandle.createWritable();
-            await writable.write(output);
-            await writable.close();
-            console.log(`自動保存完了: ${originalFileName}`);
-        } else {
-            const newHandle = await window.showSaveFilePicker({ suggestedName: filenameInput });
-            const writableNew = await newHandle.createWritable();
-            await writableNew.write(output);
-            await writableNew.close();
-            console.log(`自動保存完了: ${filenameInput}`);
-        }
-    } catch (err) {
-        alert("保存に失敗しました");
-        console.error(err);
-    }
-}
+let historyStack = [];  // undoのための履歴スタック
+let redoStack = [];     // redoのための履歴スタック
+let isUndoRedoInProgress = false;  // undoやredoが進行中かを示すフラグ
 
 // Base64 エンコード
 function arrayBufferToBase64(buffer) {
@@ -110,11 +57,11 @@ function base64ToArrayBuffer(base64) {
     return bytes.buffer;
 }
 
-// 履歴の保存
+// エディタ内容の履歴を保存
 function saveEditorState() {
-    if (isUndoRedoInProgress) return;
-    historyStack.push(document.getElementById("editor").value);
-    redoStack = [];
+    if (isUndoRedoInProgress) return;  // undo/redoが進行中のときは履歴を追加しない
+    historyStack.push(document.getElementById("editor").value);  // 現在のエディタ内容を履歴に追加
+    redoStack = [];  // redoスタックはリセット
     updateUndoRedoButtons();
 }
 
@@ -128,9 +75,9 @@ function updateUndoRedoButtons() {
 document.getElementById("undoBtn").onclick = () => {
     if (historyStack.length > 0) {
         isUndoRedoInProgress = true;
-        const previousState = historyStack.pop();
-        redoStack.push(document.getElementById("editor").value);
-        document.getElementById("editor").value = previousState;
+        const previousState = historyStack.pop();  // 最新の履歴を取り出す
+        redoStack.push(document.getElementById("editor").value);  // 現在の状態をredoスタックに保存
+        document.getElementById("editor").value = previousState;  // エディタに前の状態を反映
         updateUndoRedoButtons();
         isUndoRedoInProgress = false;
     }
@@ -140,15 +87,15 @@ document.getElementById("undoBtn").onclick = () => {
 document.getElementById("redoBtn").onclick = () => {
     if (redoStack.length > 0) {
         isUndoRedoInProgress = true;
-        const nextState = redoStack.pop();
-        historyStack.push(document.getElementById("editor").value);
-        document.getElementById("editor").value = nextState;
+        const nextState = redoStack.pop();  // 最新のredo履歴を取り出す
+        historyStack.push(document.getElementById("editor").value);  // 現在の状態をhistoryスタックに保存
+        document.getElementById("editor").value = nextState;  // エディタに次の状態を反映
         updateUndoRedoButtons();
         isUndoRedoInProgress = false;
     }
 };
 
-// ファイルを開く処理（ドラッグ＆ドロップ以外）
+// ① ファイルを開く
 document.getElementById("openBtn").onclick = async () => {
     try {
         [fileHandle] = await window.showOpenFilePicker();
@@ -174,9 +121,10 @@ document.getElementById("openBtn").onclick = async () => {
             }
         }
 
+        // ファイル名入力欄に反映
         document.getElementById("filename").value = originalFileName;
         document.getElementById("saveBtn").disabled = false;
-        historyStack = [];
+        historyStack = []; // 新しくファイルを開いたら履歴をリセット
         redoStack = [];
         updateUndoRedoButtons();
     } catch (err) {
@@ -185,7 +133,7 @@ document.getElementById("openBtn").onclick = async () => {
     }
 };
 
-// 新規ファイル作成
+// ② 新規ファイル作成
 document.getElementById("newBtn").onclick = async () => {
     if (document.getElementById("editor").value !== "" && !confirm("変更が保存されていません。新しいファイルを作成しますか？")) {
         return;
@@ -193,9 +141,24 @@ document.getElementById("newBtn").onclick = async () => {
 
     const newFileName = prompt("新しいファイル名を入力してください（拡張子も含む）", "新しいファイル.txt");
 
+    if (newFileName && !/[^a-zA-Z0-9_\-\.]/.test(newFileName)) {
+        // 新規ファイルの設定
+        document.getElementById("editor").value = "";
+        document.getElementById("filename").value = newFileName;
+        document.getElementById("saveBtn").disabled = false;
+
+        // fileHandleもリセット
+        fileHandle = null;
+        originalFileName = "";
+        historyStack = []; // 履歴をリセット
+        redoStack = [];
+        updateUndoRedoButtons();
+    } else {
+        alert("無効なファイル名です。特殊文字が含まれています。");
+    }
 };
 
-// 保存（ファイル名変更有無で処理分岐）
+// ③ 保存（ファイル名変更有無で処理分岐）
 document.getElementById("saveBtn").onclick = async () => {
     const filenameInput = document.getElementById("filename").value.trim();
     if (!filenameInput) {
@@ -236,56 +199,12 @@ document.getElementById("saveBtn").onclick = async () => {
     }
 };
 
-// ドラッグアンドドロップでファイルを読み込む
-document.getElementById("editor").addEventListener("dragover", (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
-});
-
-document.getElementById("editor").addEventListener("drop", async (event) => {
-    event.preventDefault();
-    const files = event.dataTransfer.files;
-    if (files.length === 0) {
-        alert("ファイルが選択されていません");
-        return;
-    }
-
-    const file = files[0];
-    const mode = document.getElementById("mode").value;
-    const buffer = await file.arrayBuffer();
-
-    if (mode === "text") {
-        try {
-            document.getElementById("editor").value = new TextDecoder("utf-8", { fatal: false }).decode(buffer);
-        } catch (err) {
-            alert("テキストの読み込みに失敗しました");
-            console.error(err);
-        }
-    } else {
-        try {
-            document.getElementById("editor").value = arrayBufferToBase64(buffer);
-        } catch (err) {
-            alert("Base64の読み込みに失敗しました");
-            console.error(err);
-        }
-    }
-
-    document.getElementById("filename").value = file.name;
-    historyStack = [];
-    redoStack = [];
-    updateUndoRedoButtons();
-    document.getElementById("saveBtn").disabled = false;
-});
-
 // エディタ内容が変更されるたびに履歴を保存
 document.getElementById("editor").addEventListener("input", () => {
     if (!isUndoRedoInProgress) {
         saveEditorState();
     }
 });
-
-// 自動保存を開始
-startAutoSave();
 </script>
 
 </body>
