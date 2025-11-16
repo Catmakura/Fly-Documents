@@ -1,8 +1,17 @@
+<!--
++ ================== +
+|   Fly Documents    |
++ ------------------ +
+|   Ja-Jp     v2.3.5 |
+|  release  25/11/16 |
+|   catmakura@2025   |
++ ================== +
+-->
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="ja-jp">
 <head>
 <meta charset="UTF-8">
-<title>Documents - Edit your file</title>
+<title>Documents - ファイルを安全に編集</title>
 <link rel="icon" href="Doc-icon.png" type="image/x-icon">
 <style>
 textarea { width: 100%; height: 400px; }
@@ -10,11 +19,11 @@ textarea { width: 100%; height: 400px; }
 </head>
 <body>
 
-<h2>ファイル編集＆名前変更保存ツール</h2>
-<h3>Documents v2.x</h3>
+<h2>ファイル編集ツール</h2>
+<h3>Documents v2.3.5 安定版</h3>
 
 <button id="openBtn">ファイルを開く</button>
-<button id="newBtn">新規ファイル作成</button>
+<button id="createBtn">新規ファイル作成</button>
 <button id="saveBtn" disabled>保存</button>
 <button id="undoBtn" disabled>元に戻す</button>
 <button id="redoBtn" disabled>やり直し</button>
@@ -24,8 +33,8 @@ textarea { width: 100%; height: 400px; }
 <p>
 編集モード: 
 <select id="mode">
-  <option value="text">テキストとして編集</option>
-  <option value="base64">Base64編集（バイナリ用）</option>
+  <option value="text">テキストで編集</option>
+  <option value="base64">Base64で編集（バイナリ用）</option>
 </select>
 </p>
 
@@ -134,7 +143,7 @@ document.getElementById("openBtn").onclick = async () => {
 };
 
 // ② 新規ファイル作成
-document.getElementById("newBtn").onclick = async () => {
+document.getElementById("createBtn").onclick = async () => {
     if (document.getElementById("editor").value !== "" && !confirm("変更が保存されていません。新しいファイルを作成しますか？")) {
         return;
     }
@@ -175,7 +184,7 @@ document.getElementById("saveBtn").onclick = async () => {
         try {
             output = new Uint8Array(base64ToArrayBuffer(document.getElementById("editor").value));
         } catch (e) {
-            alert("Base64が正しくありません");
+            alert("Base64データが正しくありません");
             return;
         }
     }
