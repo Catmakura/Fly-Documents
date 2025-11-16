@@ -14,3 +14,4 @@ v2.9:Bug fixes\
 v3.0:rollback to v2.3\
 v3.1:add new editor mode\
 v3.2:add reload editor button\
+v3.3:add file bandle name&Bug fixes\
