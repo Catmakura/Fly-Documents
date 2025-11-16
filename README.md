@@ -1,4 +1,5 @@
 # Fly-Documents
+ggAl6BHlfu-LP9Xa8SBpf
 version\
 v1.0:release\
 v2.0:add localstorage API、add create newfile\
@@ -15,3 +16,4 @@ v3.0:rollback to v2.3\
 v3.1:add new editor mode\
 v3.2:add reload editor button\
 v3.3:add file bandle name&Bug fixes\
+v3.4:add unicode edit mode&
