@@ -1,8 +1,8 @@
 # Fly-Documents
 Nano-ID:ggAl6BHlfu-LP9Xa8SBpf\
-UI:Super type UI
+UI:Super type UI 2.0\
 suppored now
-## version\
+## version
 v1.0:release\
 v2.0:add localstorage API、add create newfile\
 v2.1:add create newfile check\
@@ -18,7 +18,10 @@ v3.0:rollback to v2.3（Fatal Flaw）\
 v3.1:add new editor mode\
 v3.2:add reload editor button\
 v3.3:add file bandle name&Bug fixes\
-v3.4:add unicode edit mode&
+v3.4:add unicode edit mode\
 v3.5:add super type UI v1.0\
 v3.6:edit super type UI\
-v3.7:add super type UI\
+v3.7:add super type UI v2.0\
+## language
+en-us
+ja-jp
