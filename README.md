@@ -14,7 +14,7 @@ v2.6:Bug fixes\
 v2.7:Bug fixes\
 v2.8:Bug fixes\
 v2.9:Bug fixes\
-v3.0:rollback to v2.3\
+v3.0:rollback to v2.3（Fatal Flaw）\
 v3.1:add new editor mode\
 v3.2:add reload editor button\
 v3.3:add file bandle name&Bug fixes\
