@@ -1,6 +1,7 @@
 # Fly-Documents
 Nano-ID:ggAl6BHlfu-LP9Xa8SBpf\
 UI:Super type UI
+suppored now
 ## version\
 v1.0:release\
 v2.0:add localstorage API、add create newfile\
