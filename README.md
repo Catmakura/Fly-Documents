@@ -1,6 +1,7 @@
 # Fly-Documents
 Nano-ID:ggAl6BHlfu-LP9Xa8SBpf\
 UI:Super type UI 2.0\
+Lib:modalLib.js\
 suppored now
 ## version
 v1.0:release\
@@ -23,5 +24,5 @@ v3.5:add super type UI v1.0\
 v3.6:edit super type UI\
 v3.7:add super type UI v2.0\
 ## language
-en-us
+en-us\
 ja-jp
