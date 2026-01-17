@@ -1,0 +1,254 @@
+<!--
++ ================== +
+|   Fly Documents    |
+|       Solid        |
++ ------------------ +
+|   Ja-Jp     v5.0.0 |
+|  release  26/01/17 |
+|   catmakura@2026   |
++ ================== +
+-->
+<!DOCTYPE html>
+<html lang="ja-jp">
+<head>
+<meta charset="UTF-8">
+<title>Fly Documents - ファイルをどこでも安全に編集</title>
+<link rel="icon" href="icon.png" type="image/x-icon">
+<!--  =========================================================================== -->
+
+  <link rel="stylesheet" href="rightmenu.css">
+  <link rel="stylesheet" href="modallib.css">
+
+<!--  =========================================================================== -->
+
+<style>
+        body {
+            font-family: "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif;
+            background: #fff;
+            margin: 0;
+            color: #333;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* ===== メニューバー ===== */
+        .menubar {
+            heighe: 56px;
+            background: #fff;
+            border-bottom: 1px solid #dadce0;
+            padding: 8px 20px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            align-items: center;
+        }
+
+        /* 左端アイコンボタン */
+        .icon-btn {
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .icon-btn:hover {
+            background: #f1f3f4;
+        }
+        .icon-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            position: relative;
+            padding: 5px 8px;
+        }
+        .menu-item:hover {
+            background: #b4becd;
+            border-radius: 4px;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 28px;
+            left: 0;
+            background: #fff;
+            min-width: 150px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 6px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+        }
+        .menu-item:hover .dropdown {
+            display: block;
+        }
+        .dropdown div {
+            padding: 8px 15px;
+        }
+        .dropdown div:hover {
+            background: #f1f3f4;
+        }
+
+        #currentFile {
+            margin-left: auto;
+            width: 240px;
+            text-align: right;
+            padding: 5px 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            height: calc(100vh - 56px);
+            padding: 28px;
+            font-family: Consolas, monospace;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            line-height: 1.5;
+            border: none;
+            outline: none;
+            resize: none;
+
+            overflow: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+<!--  =========================================================================== -->
+
+<!-- モーダルウィンドウ -->
+<div class="modal" id="aboutModal">
+    <div class="modal-content">
+        <div class="modal-header">Fly Documents v5 Solid</div>
+        <div class="modal-body">
+            <p>軽量テキスト編集ツール(オフライン版)</p>
+            <p>■ 主な機能</p>
+            <ul>
+                <li>フルローカル　対応</li>
+                <li>UTF-8テキスト 編集</li>
+                <li>Undo / Redo　機能</li>
+                <li>書式、フォント編集機能</li>
+                <li>.fdt/raw拡張子保存</li>
+                <li>Chrome/firefox　向け</li>
+　　　　　　　　<li>スマートリポジトリ 対応(注)</li>
+                <li>Fetchバックアップ拡張機能 対応(注)</li>
+                <li>詳しくは同ファイル内</li>
+            </ul>
+            <p>ご利用ありがとうございます。</p>
+            <p>© 2025 name</p>
+        </div>
+        <div class="modal-footer">
+            <button class="close-btn" id="closeBtn">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<!--  =========================================================================== -->
+
+<!-- メニューバー -->
+<div class="menubar">
+
+    <div class="icon-btn" onclick="ModalLib.showModal('aboutModal')">
+        <img src="icon.png" alt="icon">
+    </div>
+
+    <div class="menu-item">ファイル
+        <div class="dropdown">
+            <div onclick="openFile()">開く</div>
+            <div onclick="createNewFile()">新規作成</div>
+            <div onclick="saveFile()">rawで保存</div>
+            <div onclick="savefdtFile()">.fdtで保存</div>
+            <div onclick="printFile()">印刷</div>
+        </div>
+    </div>
+
+<!-- 編集 -->
+    <div class="menu-item">編集
+        <div class="dropdown">
+            <div onclick="undoEdit()">元に戻す</div>
+            <div onclick="redoEdit()">やり直し</div>
+        </div>
+    </div>
+
+<!-- 書式 -->
+    <div class="menu-item">書式
+        <div class="dropdown">
+            <div onclick="font1()">太字</div>
+            <div onclick="font2()">斜線</div>
+            <div onclick="font3()">下線</div>
+            <div onclick="font4()">取り消し線</div>
+        </div>
+    </div>
+
+<!-- ツール -->
+    <div class="menu-item">ツール
+        <div class="dropdown">
+            <div onclick="tango()">単語帳</div>
+            <div onclick="addon()">アドオン</div>
+        </div>
+    </div>
+
+<!-- ヘルプ -->
+    <div class="menu-item">ヘルプ
+        <div class="dropdown">
+            <div onclick="helpsite()">サイトに移動　(インターネットが必要)</div>
+        </div>
+    </div>
+
+    <input type="text" id="currentFile" placeholder="未選択">
+</div>
+
+<!--  =========================================================================== -->
+
+<div id="context-menu">
+  <ul>
+    <li data-action="copy">コピー</li>
+    <li data-action="paste">貼り付け</li>
+    <li data-action="delete">削除</li>
+  </ul>
+</div>
+
+<!--  =========================================================================== -->
+
+<textarea id="editor" placeholder="ファイル内容がここに表示されます"></textarea>
+
+<!--  =========================================================================== -->
+
+<div class="editor-spacer"></div>spacer
+
+<!--  =========================================================================== -->
+
+<script src="modallib.js"></script> <!-- 外部モーダルライブラリ -->
+<script src="save&edit.js"></script> <!-- 外部ファイル制御ライブラリ -->
+<script src="rightmenu.js"></script> <!-- 外部右メニュー変更ライブラリ -->
+<script src="print.js"></script> <!-- 外部印刷設定ライブラリ -->
+
+<!--  =========================================================================== -->
+
+<script>
+    // モーダル初期化
+    ModalLib.initModal('aboutModal', 'closeBtn');
+    ModalLib.showModal('aboutModal')
+
+</script>
+
+<!--  =========================================================================== -->
+
+</body>
+</html>
