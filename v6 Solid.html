@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+<head>
+<meta charset="UTF-8">
+<title>Fly Documents - ファイルをどこでも安全に編集</title>
+<link rel="icon" href="icon.png" type="image/x-icon">
+
+<style>
+body {
+    font-family: "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif;
+    background: #fff;
+    margin: 0;
+    color: #333;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ===== メニューバー ===== */
+.menubar {
+    height: 56px;
+    background: #fff;
+    border-bottom: 1px solid #dadce0;
+    padding: 8px 20px;
+    display: flex;
+    gap: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    align-items: center;
+}
+.icon-btn { cursor: pointer; padding: 4px; border-radius: 4px; }
+.icon-btn:hover { background: #f1f3f4; }
+.icon-btn img { width: 24px; height: 24px; }
+.menu-item { cursor: pointer; position: relative; padding: 5px 8px; user-select: none; }
+.menu-item:hover { background: #b4becd; border-radius: 4px; }
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 32px;
+    left: 0;
+    background: #fff;
+    min-width: 180px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    padding: 6px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    z-index: 300;
+}
+.menu-item:hover .dropdown { display: block; }
+.dropdown div { padding: 8px 15px; }
+.dropdown div:hover { background: #f1f3f4; }
+#currentFile {
+    margin-left: auto;
+    width: 240px;
+    text-align: right;
+    padding: 5px 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+textarea {
+    display: block;
+    width: 100%;
+    height: calc(100vh - 56px);
+    padding: 28px;
+    font-family: Consolas, monospace;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+/* ===== コンテキストメニュー ===== */
+#context-menu {
+    position: absolute;
+    display: none;
+    width: 160px;
+    background: #fff;
+    color: #2c2c2c;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+}
+#context-menu ul { list-style: none; margin: 0; padding: 6px 0; }
+#context-menu li { padding: 10px 14px; cursor: pointer; }
+#context-menu li:hover { background: #4a90e2; }
+
+/* ===== モーダル ===== */
+.modal { display: none; position: fixed; inset: 0; justify-content: center; align-items: center; z-index: 1000; }
+.modal.show { display: flex; }
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.15);
+    animation: modalFadeIn 0.2s ease-out;
+}
+.modal-header { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+.modal-body { font-size: 14px; line-height: 1.6; }
+.modal-footer { margin-top: 20px; text-align: right; }
+.close-btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.close-btn:hover { background-color: #0056b3; }
+@keyframes modalFadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+</style>
+</head>
+
+<body>
+
+<!-- モーダル -->
+<div class="modal" id="aboutModal">
+    <div class="modal-content">
+        <div class="modal-header">Fly Documents v5 Solid</div>
+        <div class="modal-body">
+            <p>軽量テキスト編集ツール（オフライン版）</p>
+            <ul>
+                <li>フルローカル対応</li>
+                <li>UTF-8テキスト編集</li>
+                <li>Undo / Redo 機能</li>
+                <li>書式・フォント編集機能</li>
+                <li>.fdt / raw 拡張子保存</li>
+                <li>Chrome / Firefox 向け</li>
+                <li>スマートリポジトリ対応（注）</li>
+                <li>Fetchバックアップ拡張機能対応（注）</li>
+            </ul>
+            <p>© 2025 name</p>
+        </div>
+        <div class="modal-footer">
+            <button class="close-btn" id="closeBtn">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<!-- メニューバー -->
+<div class="menubar">
+    <div class="icon-btn" onclick="ModalLib.showModal('aboutModal')" title="情報">
+        <img src="icon.png" alt="Fly Documents">
+    </div>
+
+    <div class="menu-item">ファイル
+        <div class="dropdown">
+            <div onclick="openFile()">開く</div>
+            <div onclick="createNewFile()">新規作成</div>
+            <div onclick="saveFile()">rawで保存</div>
+            <div onclick="savefdtFile()">.fdtで保存</div>
+            <div onclick="printFile()">印刷</div>
+        </div>
+    </div>
+
+    <div class="menu-item">編集
+        <div class="dropdown">
+            <div onclick="undoEdit()">元に戻す</div>
+            <div onclick="redoEdit()">やり直し</div>
+        </div>
+    </div>
+
+    <div class="menu-item">書式
+        <div class="dropdown">
+            <div onclick="font1()">太字</div>
+            <div onclick="font2()">斜体</div>
+            <div onclick="font3()">下線</div>
+            <div onclick="font4()">取り消し線</div>
+        </div>
+    </div>
+
+    <div class="menu-item">ツール
+        <div class="dropdown">
+            <div onclick="tango()">単語帳</div>
+            <div onclick="addon()">アドオン</div>
+        </div>
+    </div>
+
+    <div class="menu-item">ヘルプ
+        <div class="dropdown">
+            <div onclick="helpsite()">サイトに移動（要インターネット）</div>
+        </div>
+    </div>
+
+    <input type="text" id="currentFile" placeholder="未選択" readonly>
+</div>
+
+<textarea id="editor" placeholder="ファイル内容がここに表示されます"></textarea>
+
+<!-- モバイル用ファイル入力 -->
+<input type="file" id="fileInput" style="display:none;">
+
+<script src="rightmenu.js"></script>
+<script src="print.js"></script>
+
+<!-- =====================
+  モーダルライブラリ
+===================== -->
+<script>
+(function(global){
+    function initModal(modalId, closeButtonId){
+        const modal=document.getElementById(modalId),
+              closeButton=document.getElementById(closeButtonId);
+        if(modal && closeButton){
+            closeButton.addEventListener('click',()=>closeModal(modalId));
+            modal.addEventListener('click',e=>e.target===modal && closeModal(modalId));
+            document.addEventListener('keydown', (e) => (e.key === 'Escape' || e.key === ' ' || e.key === 'Spacebar') && closeModal(modalId));
+        }
+    }
+
+    function showModal(modalId, autoCloseTime){
+        const modal=document.getElementById(modalId);
+        if(modal){
+            modal.classList.add('show');
+            if(autoCloseTime && typeof autoCloseTime==='number'){
+                setTimeout(()=>closeModal(modalId), autoCloseTime);
+            }
+        }
+    }
+
+    function closeModal(modalId){
+        const modal=document.getElementById(modalId);
+        if(modal) modal.classList.remove('show');
+    }
+
+    global.ModalLib={initModal, showModal, closeModal};
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        ModalLib.initModal('aboutModal','closeBtn');
+        ModalLib.showModal('aboutModal');
+    });
+
+})(window);
+</script>
+
+<!-- =====================
+  ファイル操作（PC/iPad対応）
+===================== -->
+<script>
+let fileHandle = null;
+let originalFileName = '';
+let originalContent = '';
+let historyStack = [];
+let redoStack = [];
+
+function updateFileInfo() {
+    document.getElementById('currentFile').value = originalFileName;
+}
+
+async function openFile() {
+    if (window.showOpenFilePicker) {
+        try {
+            [fileHandle] = await window.showOpenFilePicker();
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            document.getElementById('editor').value = text;
+            originalContent = text;
+            originalFileName = file.name;
+            updateFileInfo();
+            historyStack = [];
+            redoStack = [];
+            document.title = originalFileName + ' - Fly Documents';
+        } catch(e) { console.warn('ファイル選択がキャンセルされました'); }
+    } else {
+        const fileInput = document.getElementById('fileInput');
+        fileInput.value = '';
+        fileInput.click();
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const text = await file.text();
+            document.getElementById('editor').value = text;
+            originalContent = text;
+            originalFileName = file.name;
+            updateFileInfo();
+            historyStack = [];
+            redoStack = [];
+            document.title = originalFileName + ' - Fly Documents';
+            fileHandle = null;
+        };
+    }
+}
+
+function createNewFile() {
+    const fname = prompt("ファイル名を入力（例: 新規.txt）", "新規.txt");
+    if (!fname) return;
+    if(/[\\\/:*?"<>|]/.test(fname)){ alert("使用できない文字が含まれています"); return; }
+    document.getElementById('editor').value='';
+    originalFileName = fname;
+    originalContent = '';
+    fileHandle = null;
+    updateFileInfo();
+    historyStack = []; redoStack = [];
+    document.title = fname + ' - Fly Documents';
+}
+
+async function saveFile() {
+    const name = document.getElementById('currentFile').value.trim();
+    if (!name) return alert("ファイル名を入力してください");
+
+    const blob = new Blob([document.getElementById('editor').value], { type: "text/plain" });
+
+    if (window.showSaveFilePicker) {
+        try {
+            if (!fileHandle) {
+                fileHandle = await window.showSaveFilePicker({ suggestedName: name });
+            }
+            const w = await fileHandle.createWritable();
+            await w.write(blob);
+            await w.close();
+            alert("保存しました！");
+        } catch(e){ alert("保存に失敗しました"); }
+    } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("保存しました！（ダウンロード）");
+    }
+
+    originalFileName = name;
+    originalContent = document.getElementById('editor').value;
+    document.title = name + ' - Fly Documents';
+}
+
+async function savefdtFile() {
+    await saveFile();
+}
+</script>
+
+</body>
+</html>
