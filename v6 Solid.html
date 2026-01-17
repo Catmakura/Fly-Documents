@@ -163,7 +163,9 @@ textarea {
         <div class="dropdown">
             <div onclick="undoEdit()">元に戻す</div>
             <div onclick="redoEdit()">やり直し</div>
-        </div>
+　　　　　　<div id="charCount" style=" font-size:15px; color:#555; line-height:0.8;">文字数: 0</div>
+　　　　    <span id="lineCount" style=" font-size:15px; color:#555; line-height:0.8;">行数: 1</span>
+      　　</div>
     </div>
 
     <div class="menu-item">書式
@@ -335,6 +337,28 @@ async function savefdtFile() {
     await saveFile();
 }
 </script>
+<script>
+function counter() {
+    const editor = document.getElementById('editor');
+    const text = editor.value;
 
+    // 文字数
+    const charCount = text.length;
+    document.getElementById('charCount').textContent = "文字数: " + charCount;
+
+    // 行数（改行で分割）
+    const lineCount = text.split(/\r\n|\r|\n/).length;
+    document.getElementById('lineCount').textContent = "行数: " + lineCount;
+}
+
+// 「文字数」メニューをクリックしたとき
+function counterMenuClick() {
+    counter();
+    alert("文字数と行数を更新しました");
+}
+
+// リアルタイム更新
+document.getElementById('editor').addEventListener('input', counter);
+</script>
 </body>
 </html>
