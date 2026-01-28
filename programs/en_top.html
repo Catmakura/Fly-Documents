@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>top - Trick</title>
+    <link rel="stylesheet" href="top.css">
+  </head>
+  <body>
+       <img id="wallpaper" src="wallpaper/1.jpg" alt="wallpaper">
+         <div class="container">
+           <div class="language">
+             <p><button class="select" , onclick="window.location.href='../index.html';">ja-jp</button><br>
+            <button class="select" , onclick="window.location.href='zh_top.html';">zh-cn</button></p>
+           </div>
+           <div class="card">
+             <h1 id="time_base_message">Hallo!</h1>
+             <p>This is Trick's top。
+             <br><button class="link" , onclick="window.location.href='terms_of_service.html';">利用規約</button>に同意して次へ進んでください。</p>
+             <button class="button" ,="" onclick="window.location.href='mainpage.html';">利用規約に同意して次に進む</button>
+         </div>
+       </div>
+       <div class="container">
+         <div class="contents">
+           <h1>Trick</h1>
+           <h5>↓Github Page↓</h5>
+           <button class="link" ,="" onclick="window.location.href='https://github.com/Catmakura/trick';">github.com/Catmakura/trick</button>
+           <h5>↓Help↓</h5>
+           <button class="link" , onclick="window.location.href='programs/help.html';">Catmakura.github.io/trick/help.html/</button>
+           <h5>©️ 2025 Nekomakura</h5><button class="contact" ,="" onclick="window.location.href='https://github.com/Catmakura/';">contact us</button>
+         </div>
+       </div>
+    <script>
+      function updateImage() {
+        const now = new Date();
+        const seconds = now.getSeconds();
+        const img = document.getElementById("wallpaper");
+       img.src = `programs/wallpaper/${seconds}.jpg`;}updateImage();
+    </script>
+<script>
+/* Time msg */
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const hours = now.getHours(); // Get the hour (24-hour format)
+    
+    // Debugging: Log the current time
+    console.log("Current hour:", hours);
+
+    // Get the element where the message will be shown
+    const messageElement = document.getElementById('time_base_message');
+
+    // Check if the element exists
+    if (messageElement) {
+        // Set the message based on the time of day
+        if (hours >= 3 && hours < 10) {
+            messageElement.textContent = "おはようございます！"; // Morning
+        } else if (hours >= 10 && hours < 17) {
+            messageElement.textContent = "こんにちは！"; // Afternoon
+        } else if (hours >= 17 && hours < 22) {
+            messageElement.textContent = "こんばんは！"; // Evening
+        } else {
+            messageElement.textContent = "おやすみなさい!"; // Night
+        }
+    } else {
+        console.error("Element with id 'time_base_message' not found.");
+    }
+});
+</script>
+  </body>
+</html>
