@@ -13,8 +13,8 @@
            <div class="card">
              <h1 id="time_base_message">Hallo!</h1>
              <p>This is Trick's top。
-             <br><button class="link" , onclick="window.location.href='terms_of_service.html';">利用規約</button>に同意して次へ進んでください。</p>
-             <button class="button" ,="" onclick="window.location.href='mainpage.html';">利用規約に同意して次に進む</button>
+             <br><button class="link" , onclick="window.location.href='terms_of_service.html';">Terms of service</button>に同意して次へ進んでください。</p>
+             <button class="button" ,="" onclick="window.location.href='mainpage.html';">accopt terms of service to go to next</button>
          </div>
        </div>
        <div class="container">
@@ -23,8 +23,8 @@
            <h5>↓Github Page↓</h5>
            <button class="link" ,="" onclick="window.location.href='https://github.com/Catmakura/trick';">github.com/Catmakura/trick</button>
            <h5>↓Help↓</h5>
-           <button class="link" , onclick="window.location.href='programs/help.html';">Catmakura.github.io/trick/help.html/</button>
-           <h5>©️ 2025 Nekomakura</h5><button class="contact" ,="" onclick="window.location.href='https://github.com/Catmakura/';">contact us</button>
+           <button class="link" , onclick="window.location.href='programs/help.html';">help.html/</button>
+           <h5>©️ 2025 Catmakura</h5><button class="contact" ,="" onclick="window.location.href='https://github.com/Catmakura/';">contact us</button>
          </div>
        </div>
     <script>
@@ -32,7 +32,7 @@
         const now = new Date();
         const seconds = now.getSeconds();
         const img = document.getElementById("wallpaper");
-       img.src = `programs/wallpaper/${seconds}.jpg`;}updateImage();
+       img.src = `wallpaper/${seconds}.jpg`;}updateImage();
     </script>
 <script>
 /* Time msg */
@@ -50,13 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (messageElement) {
         // Set the message based on the time of day
         if (hours >= 3 && hours < 10) {
-            messageElement.textContent = "おはようございます！"; // Morning
+            messageElement.textContent = "Good Morning!"; // Morning
         } else if (hours >= 10 && hours < 17) {
-            messageElement.textContent = "こんにちは！"; // Afternoon
+            messageElement.textContent = "Hallo!"; // Afternoon
         } else if (hours >= 17 && hours < 22) {
-            messageElement.textContent = "こんばんは！"; // Evening
+            messageElement.textContent = "Good Evening！"; // Evening
         } else {
-            messageElement.textContent = "おやすみなさい!"; // Night
+            messageElement.textContent = "Good Night."; // Night
         }
     } else {
         console.error("Element with id 'time_base_message' not found.");
